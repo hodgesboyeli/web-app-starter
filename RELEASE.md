@@ -3,9 +3,9 @@
 ## When a PR contains a migration
 
 1. Before approval, verify the PR includes the schema change and generated `drizzle/` SQL and metadata. Review the SQL for data loss. On its Vercel preview URL, verify the matching Neon preview branch, test the migrated feature, and confirm test writes remain only on that branch. For changes that delete or substantially rewrite existing data, stop and make a separate release plan.
-2. Only the repository owner approves and merges the PR into `main`. Merge one release at a time. Keep the previous production code compatible with this migration while the release builds.
+2. Codex opens the PR and waits for the owner's review. It must never merge or enable auto-merge without explicit approval. Once the owner explicitly approves that specific PR and instructs Codex to merge it, Codex may merge it; the owner may also merge manually. Merge one release at a time. Keep the previous production code compatible with this migration while the release builds.
 3. Vercel starts a production build from `main` using the production Neon URLs. Before connecting, the build verifies the direct endpoint matches `PRODUCTION_DATABASE_HOST`; a Preview build must differ from it. `npm run build` invokes `npm run db:migrate` on the **direct production connection** before building Next.js. Drizzle applies only migrations absent from the production migration journal. Vercel serves the new deployment only after the entire build succeeds. The preview database and its test records are never copied to production.
-4. In Vercel, confirm the production deployment is **Ready** and the expected commit is live. In Neon, inspect the production branch: the new table/column exists, `drizzle.__drizzle_migrations` contains the migration, and existing records remain. Exercise the production feature. Delete the merged Git branch after verification.
+4. After either merge path, Codex verifies in Vercel that the production deployment is **Ready** and the expected commit is live. In Neon, inspect the production branch: the new table/column exists, `drizzle.__drizzle_migrations` contains the migration, and existing records remain. Exercise the production feature. Delete the merged Git branch after verification.
 
 A code-only PR follows the same deployment path; with no new migration, Drizzle has nothing to apply.
 
